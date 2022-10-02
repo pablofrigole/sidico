@@ -11,22 +11,22 @@ options.add_argument('--start-maximized')
 options.add_argument('--disable-extensions')
 driver_path = 'C:\scraping python\chromedriver.exe'
 driver = webdriver.Chrome(driver_path, options=options)
+
+def click_element(xpath, time):
+    WebDriverWait(driver, time).until(EC.element_to_be_clickable((By.XPATH, xpath))).click()
+
+def fill_input(name, keys, time):
+    WebDriverWait(driver, time).until(EC.element_to_be_clickable((By.CSS_SELECTOR, name))).send_keys(keys)
+
 # Inicializamos el navegador
 driver.get('https://sidico-web.mendoza.gov.ar/Sidico/servlet/hptrf01')
-WebDriverWait(driver, 5)\
-    .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                      'input#W0010vUSUARIO')))\
-    .send_keys('O115FRIGOL')
-WebDriverWait(driver, 5)\
-    .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                      'input#W0010vPASSWORD')))\
-    .send_keys('1Nc414ne3v')
+
+fill_input('input#W0010vUSUARIO', 'O115FRIGOL', 5)
+fill_input('input#W0010vPASSWORD', '1Nc414ne3v', 5)
 
 driver.find_element_by_name('W0010BUTTON1').click()
-WebDriverWait(driver, 30)\
-    .until(EC.element_to_be_clickable((By.XPATH,
-                                      '/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr/td[1]/div/div/table/tbody/tr[2]/td[2]/table')))\
-    .click()
+click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr/td[1]/div/div/table/tbody/tr[2]/td[2]/table', 30)
+
 WebDriverWait(driver, 5)\
     .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
                                       'input#yui-gen1-field')))\
