@@ -1,4 +1,5 @@
 #Librerías
+#PARA REVISAR OJOOOO SI EN EL MONTO DE CAPITAL VIENE 0 AL IGUAL QUE EN INTERES Y SOLO VIENE IVA Y TOTAL NO ACTIVAR LAS LINEAS QUE LLENAN CAPITAL E INTERES VER DE ARMAR UN IF
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
@@ -74,6 +75,7 @@ for i in range(0,filas):
     anio_exp_adm = int(tabla.iloc[i,25]) 
     texto_preventivo = tabla.iloc[i,16]
     print(texto_preventivo, monto_capital, monto_interes, monto_iva, monto_total, num_exp_adm, anio_exp_adm)
+    #Las funciones de abajo están repetidas porque están arriba
     def click_element(xpath, time):
         WebDriverWait(driver, time).until(EC.element_to_be_clickable((By.XPATH, xpath))).click()
     def fill_input(name, keys, time):
@@ -182,6 +184,49 @@ for i in range(0,filas):
         .send_keys(monto_interes)
     click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[8]/td/fieldset/table/tbody/tr[4]/td/table/tbody/tr/td[1]/input', 30) 
     time.sleep(10)
+    #
+    #linea 3 iva
+    #hay que cambiar la coma por punto para poder evaluar el número ver cómo es el proceso
+    letra = monto_iva
+    posicion = letra.find(',')
+    letra1 = letra[0:posicion]
+    letra2= letra[posicion + 1:posicion + 3]
+    letranueva = str(letra1 + '.' + letra2)
+    print(letra1)
+    print(letra2)
+    print(letra)
+    print(letranueva)
+    numero = float(letranueva)
+    suma = numero +1
+    print(suma)
+    
+    if numero > 0:
+            fill_input('input#vPREVGESGTO', 'I00493', 5)
+            fill_input('input#vPREVINSUNRO', '196000026', 5)
+            fill_input('input#vPREVINSUSNRO', '0', 5)
+            # agregar para que se ponga en clear
+            WebDriverWait(driver, 5)\
+                .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                                'input#vPREVCANLIN')))\
+                .clear()
+            time.sleep(5)
+            WebDriverWait(driver, 5)\
+                .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                                'input#vPREVCANLIN')))\
+                .send_keys('1')
+            WebDriverWait(driver, 5)\
+                .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                                'input#vPREVPRELIN')))\
+                .clear()
+            time.sleep(5)
+            WebDriverWait(driver, 5)\
+                .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                                'input#vPREVPRELIN')))\
+                .send_keys(monto_iva)
+            click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[8]/td/fieldset/table/tbody/tr[4]/td/table/tbody/tr/td[1]/input', 30) 
+            time.sleep(10)
+
+
     #distribuir el gasto
     click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr/td/input[4]', 30) 
     #abre un popup ver código para popup
@@ -189,20 +234,22 @@ for i in range(0,filas):
     #luego se da click en button input#BTN_ENTER
     #luego de cerrar popup va a click en link span#TEXTBLOCK7
     #código para popup iframe
-    # falta agregar un código que identifique en el mes que estamos y poner input#PREVNG12 (y poner 01 o 12 según el mes)
+    # se agregó un código que identifique en el mes que estamos y poner input#PREVNG12 (y poner 1 o 12 según el mes)
+    # es en la variablexpathmes
+    variablexpathmes = str('input#PREVNG'+mes)
     time.sleep(10)
     iframe = driver.find_element_by_id("gxp0_ifrm")
     driver.switch_to.frame(iframe)
     #recordar cambiar PREVNG12 por el mes que corresponda
     WebDriverWait(driver, 5)\
         .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                        'input#PREVNG1')))\
+                                        variablexpathmes)))\
         .clear()
     time.sleep(5)
     print(monto_capital)
     WebDriverWait(driver, 5)\
         .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                        'input#PREVNG1')))\
+                                        variablexpathmes)))\
         .send_keys(monto_total)
     time.sleep(10)
     click_element('/html/body/form/div[1]/div/table/tbody/tr/td/fieldset/table/tbody/tr[3]/td/table/tbody/tr/td[1]/input', 30) 
@@ -234,7 +281,7 @@ for i in range(0,filas):
     #/html/body/div[2]/div[1]/span[2]
     click_element('/html/body/div[2]/div[1]/span[2]', 30) 
     time.sleep(10)
-    #hacer click en el lápiz para modificar el definitivo
+    #hacer click en el lápiz para modificar el definitivo Ojo ver IF si hay IVA para ponerlo en la línea
     #/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[4]/td/table/tbody/tr[2]/td/div/table/tbody/tr/td[1]/img
     click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[4]/td/table/tbody/tr[2]/td/div/table/tbody/tr/td[1]/img', 30) 
     time.sleep(10)
@@ -249,7 +296,7 @@ for i in range(0,filas):
     seleccionar = Select(driver.find_element_by_xpath('//*[@id="vADEFTIPNOR"]'))
     seleccionar.select_by_value("3")
     time.sleep(10)
-    #funciona ahora hay que llenar con datos recordar cambiar número de ley de presupuesto
+    #funciona ahora hay que llenar con datos recordar cambiar número de ley de presupuesto OJO que con IF hay una línea más de iva
     fill_input('input#vADEFNRONOR', '9433', 5)
     time.sleep(10)
     WebDriverWait(driver, 5)\
@@ -270,6 +317,10 @@ for i in range(0,filas):
     #para click en casilla 2 /html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[9]/td/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td[26]/label/input
     click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[9]/td/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td[26]/label/input', 30) 
     time.sleep(10)
+    #para click en casilla 3 si hay IVA /html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[9]/td/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/table/tbody/tr[3]/td[26]/label/input
+    if numero > 0:
+            click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[9]/td/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/table/tbody/tr[3]/td[26]/label/input', 30) 
+            time.sleep(10)
     # boton de modificar
     click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[7]/td/table/tbody/tr/td[2]/table/tbody/tr/td/fieldset/table/tbody/tr[3]/td/table/tbody/tr[1]/td[2]/input', 30) 
     time.sleep(10)
@@ -278,6 +329,10 @@ for i in range(0,filas):
     time.sleep(30)
     click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr/td/fieldset/table/tbody/tr[3]/td/table/tbody/tr/td[1]/input', 30) 
     time.sleep(30)
+    #OJO con IF hay que validar la tercer línea de IVA
+    if numero > 0:
+            click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr/td/fieldset/table/tbody/tr[3]/td/table/tbody/tr/td[1]/input', 30) 
+            time.sleep(30)
     #pasa a imputación definitiva /html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr/td/input[4]
     click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[2]/td/table/tbody/tr/td/input[4]', 30) 
     time.sleep(30)
@@ -294,7 +349,7 @@ for i in range(0,filas):
     ####VER DE CERRAR EL PDF Y ARRANCAR CON EL MENU INICIAL Y OP PARA NO VOLVER A LOGUEARSE NO FUNCIONA 
     #click_element('/html/body/div[4]/div[1]/span[2]', 30) 
     ########################################################################################################
-    #arrancar con la op######
+    #arrancar con la op###### revisar porque cuando se loguea para arrancar da error parece que en el fecinitivo cierra login
     ##############################
     ### poner el logeo porque no funciona la anterior
     #Opciones de navegación
@@ -311,8 +366,8 @@ for i in range(0,filas):
     # Inicializamos el navegador ver si esto puede quedar fuera del for para no loguearse cada vez
     driver.get('https://sidico-web.mendoza.gov.ar/Sidico/servlet/hptrf01')
     # Datos de usuario y contraseña ver de poner en archivos luego
-    fill_input('input#W0010vUSUARIO', 'O115FRIGOL', 5)
-    fill_input('input#W0010vPASSWORD', '7H6g4Ghj3f', 5)
+    fill_input('input#W0010vUSUARIO', usur, 5)
+    fill_input('input#W0010vPASSWORD', passw, 5)
     driver.find_element_by_name('W0010BUTTON1').click()
     click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr/td[1]/div/div/table/tbody/tr[2]/td[2]/table/tbody/tr/td/div/div/table/tbody/tr[1]/td/div/div/table/tbody/tr[1]/td[2]', 30)
     #datos de contexto de presupuesto cambiar con el año
@@ -407,6 +462,7 @@ for i in range(0,filas):
     print(num_op)
     click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[2]/td/fieldset/table[2]/tbody/tr/td/div/div/table/tbody/tr[3]/td/table/tbody/tr/td/fieldset/table/tbody/tr[3]/td/div/table/tbody/tr[1]/td[15]/input', 30)
     time.sleep(20)
+    # OJO con el IF hay que liquidar también la línea de IVA
     WebDriverWait(driver, 20)\
         .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
                                         'input#W0028vCANTLIQ_0001')))\
@@ -417,6 +473,14 @@ for i in range(0,filas):
                                         'input#W0028vCANTLIQ_0002')))\
         .send_keys(Keys.ARROW_LEFT, Keys.ARROW_LEFT, Keys.ARROW_LEFT,'1',Keys.TAB)
     time.sleep(20)
+    # acá podría ir el IF
+    if numero > 0:
+            WebDriverWait(driver, 20)\
+                .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                        'input#W0028vCANTLIQ_0003')))\
+                .send_keys(Keys.ARROW_LEFT, Keys.ARROW_LEFT, Keys.ARROW_LEFT,'1',Keys.TAB)
+            time.sleep(20)
+            
     WebDriverWait(driver, 20)\
         .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
                                         'input#W0028vCANTLIQ_0001')))\
@@ -427,11 +491,26 @@ for i in range(0,filas):
                                         'input#W0028vCANTLIQ_0002')))\
         .send_keys(Keys.ARROW_LEFT, Keys.ARROW_LEFT, Keys.ARROW_LEFT,'1',Keys.TAB)
     time.sleep(20)
+    # acá podría ir el IF
+    if numero > 0:
+            WebDriverWait(driver, 20)\
+                .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                        'input#W0028vCANTLIQ_0003')))\
+                .send_keys(Keys.ARROW_LEFT, Keys.ARROW_LEFT, Keys.ARROW_LEFT,'1',Keys.TAB)
+            time.sleep(20)
     WebDriverWait(driver, 20)\
         .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
                                         'input#W0028vCANTLIQ_0002')))\
         .send_keys(Keys.ARROW_LEFT, Keys.ARROW_LEFT, Keys.ARROW_LEFT,'1',Keys.TAB)
     time.sleep(20)
+    # acá podría ir el IF
+    if numero > 0:
+            WebDriverWait(driver, 20)\
+                .until(EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                        'input#W0028vCANTLIQ_0003')))\
+                .send_keys(Keys.ARROW_LEFT, Keys.ARROW_LEFT, Keys.ARROW_LEFT,'1',Keys.TAB)
+            time.sleep(20)
+    #confirma las líneas
     click_element('/html/body/form/table/tbody/tr[5]/td/div/div/table/tbody/tr[2]/td/fieldset/table[2]/tbody/tr/td/div/div/table/tbody/tr[3]/td/table/tbody/tr/td/fieldset/table/tbody/tr[4]/td[1]/input[1]', 10)
     time.sleep(20)
     #abre el popup de la factura
